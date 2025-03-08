@@ -4,10 +4,10 @@ This file serves as a task list for the project. Check off tasks as you complete
 
 ## Tasks
 
-- [ ] **Init Project**  
+- [x] **Init Project**  
   Set up the project structure, initialize Git, and install necessary dependencies.
 
-- [ ] **First Job Logic**  
+- [x] **First Job Logic**  
   Develop and integrate the primary job logic functionality.
 
 - [ ] **Add Unit Tests to the Job Logic**  
