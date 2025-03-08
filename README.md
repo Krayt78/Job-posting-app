@@ -19,3 +19,13 @@ This file serves as a task list for the project. Check off tasks as you complete
 
 - [ ] **Search Job Posting by Skills**  
   Implement functionality to search for job postings based on associated skills.
+
+- [ ] **Add a User Module (with all the CRUD)**  
+  Develop a comprehensive user module to handle create, read, update, and delete operations.
+
+- [ ] **Setup User Auth Logic**  
+  Implement user authentication, ensuring secure login and registration flows.
+
+- [ ] **Add Middleware to Check if User is Logged In**  
+  Create middleware to verify that a user is authenticated before granting access to protected routes.
+
