@@ -18,6 +18,7 @@ export class JobService {
       location: createJobDto.location,
       createdAt: new Date(),
       salary: createJobDto.salary,
+      skills: createJobDto.skills,
     };
 
     // Store the new job in the in-memory array
@@ -26,18 +27,23 @@ export class JobService {
   }
 
   //Method to get all job postings
-  findAll(): Job[] {
+  getJobs(): Job[] {
     return this.jobs;
   }
 
   //Method to get a specific job by ID
-  findOne(id: string): Job | null {
+  getJob(id: string): Job | null {
     return this.jobs.find(job => job.id === id) || null;
+  }
+
+  //Method to get jobs that have all the skills listed in the skills array
+  getJobsBySkills(skills: string[]): Job[] {
+    return this.jobs.filter(job => job.skills.every(skill => skills.includes(skill)));
   }
 
   //Method to update a job by ID
   updateJob(id: string, updateJobDto: UpdateJobDto): Job | null {
-    const job = this.findOne(id);
+    const job = this.getJob(id);
     if (!job) {
       return null;
     }
@@ -52,6 +58,9 @@ export class JobService {
     }
     if (updateJobDto.salary !== undefined) {
       job.salary = updateJobDto.salary;
+    }
+    if (updateJobDto.skills !== undefined) {
+      job.skills = updateJobDto.skills;
     }
     return job;
   }

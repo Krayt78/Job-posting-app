@@ -11,6 +11,7 @@ describe('JobService', () => {
     description: 'We are looking for a talented Software Engineer',
     location: 'New York, NY',
     salary: 100000,
+    skills: ['JavaScript'],
   };
 
   const updatedJobFixture: UpdateJobDto = {
@@ -18,6 +19,7 @@ describe('JobService', () => {
     description: 'Updated description',
     location: 'Remote',
     salary: 120000,
+    skills: ['TypeScript'],
   };
 
   const createTestJob = (dto: CreateJobDto = jobFixture) => {
@@ -47,16 +49,16 @@ describe('JobService', () => {
     });
   });
 
-  describe('findOne', () => {
+  describe('getJob', () => {
     it('should find a job by id', () => {
       const createdJob = createTestJob();
-      const foundJob = service.findOne(createdJob.id);
+      const foundJob = service.getJob(createdJob.id);
       
       expect(foundJob).toEqual(createdJob);
     });
 
     it('should return null for non-existent job', () => {
-      expect(service.findOne('non-existent-id')).toBeNull();
+      expect(service.getJob('non-existent-id')).toBeNull();
     });
   });
 
@@ -65,7 +67,7 @@ describe('JobService', () => {
       const createdJob = createTestJob();
       
       service.updateJob(createdJob.id, updatedJobFixture);
-      const updatedJob = service.findOne(createdJob.id);
+      const updatedJob = service.getJob(createdJob.id);
       
       expect(updatedJob).toEqual(expect.objectContaining({
         ...updatedJobFixture,
@@ -80,11 +82,11 @@ describe('JobService', () => {
       
       service.deleteJob(createdJob.id);
       
-      expect(service.findOne(createdJob.id)).toBeNull();
+      expect(service.getJob(createdJob.id)).toBeNull();
     });
   });
 
-  describe('findAll', () => {
+  describe('getJobs', () => {
     it('should return all jobs', () => {
       const job1 = createTestJob();
       const job2 = createTestJob({
@@ -92,14 +94,30 @@ describe('JobService', () => {
         title: 'Product Manager',
       });
 
-      const allJobs = service.findAll();
+      const allJobs = service.getJobs();
       
       expect(allJobs).toHaveLength(2);
       expect(allJobs).toEqual(expect.arrayContaining([job1, job2]));
     });
 
     it('should return empty array when no jobs exist', () => {
-      expect(service.findAll()).toEqual([]);
+      expect(service.getJobs()).toEqual([]);
     });
+
+    it('should return the jobs that have all the skills asked', () => {
+      createTestJob();
+      createTestJob({
+        ...jobFixture,
+        skills: ['skill1'],
+      });
+      const expectedJob = createTestJob({
+        ...jobFixture,
+        title: 'Product Manager',
+        skills: ['skill1', 'skill2'],
+      });
+
+      const jobs = service.getJobsBySkills(['skill1', 'skill2']);
+      expect(jobs).toEqual(expect.arrayContaining([expectedJob]));
+    })
   });
 });

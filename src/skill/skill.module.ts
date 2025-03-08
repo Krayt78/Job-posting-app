@@ -1,7 +1,12 @@
 import { Module } from '@nestjs/common';
-import { SkillService } from './skill/skill.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SkillType } from './skill-type.entity';
+import { SkillService } from './skill.service';
+import { IsValidSkillConstraint } from './validators/is-valid-skill.decorator';
 
 @Module({
-  providers: [SkillService]
+  imports: [TypeOrmModule.forFeature([SkillType])],
+  providers: [SkillService, IsValidSkillConstraint],
+  exports: [SkillService],
 })
 export class SkillModule {}

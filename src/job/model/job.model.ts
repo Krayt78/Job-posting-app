@@ -6,5 +6,6 @@ export interface Job {
     location: string;
     createdAt: Date;
     salary: number;
+    skills: string[];
   }
   

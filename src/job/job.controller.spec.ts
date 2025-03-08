@@ -10,6 +10,7 @@ const createJobDtoFixture = (overrides: Partial<CreateJobDto> = {}): CreateJobDt
   description: 'Develop cutting-edge web applications',
   location: 'Remote',
   salary: 100000,
+  skills: ['Javascript'],
   ...overrides,
 });
 
@@ -42,6 +43,7 @@ describe('JobService', () => {
       expect(result.description).toBe(createJobDto.description);
       expect(result.location).toBe(createJobDto.location);
       expect(result.salary).toBe(createJobDto.salary);
+      expect(result.skills).toBe(createJobDto.skills);
       expect(result).toHaveProperty('createdAt');
       // Optionally check that createdAt is a valid date
       expect(new Date(result.createdAt)).toBeInstanceOf(Date);
@@ -64,14 +66,14 @@ describe('JobService', () => {
       expect(updatedJob!.description).toBe(updateJobDto.description);
       expect(updatedJob!.location).toBe(updateJobDto.location);
       expect(updatedJob!.salary).toBe(updateJobDto.salary);
-    })
-    
+      expect(updatedJob!.skills).toBe(updateJobDto.skills);
+    });
   });
 
   describe('findAll', () => {
     it('should return all job postings (empty)', () => {
       // Act: call the findAll method
-      const result = service.findAll();
+      const result = service.getJobs();
       // Assert: verify that no jobs exist yet
       expect(result).toEqual([]);
     });
@@ -83,7 +85,7 @@ describe('JobService', () => {
       const job3 = service.createJob(createJobDtoFixture({ title: 'Frontend Developer' }));
 
       // Act: call the findAll method
-      const result = service.findAll();
+      const result = service.getJobs();
 
       // Assert: verify the result contains all created jobs
       expect(result).toEqual([job1, job2, job3]);
@@ -96,7 +98,7 @@ describe('JobService', () => {
       const job = service.createJob(createJobDtoFixture());
 
       // Act: call the findOne method with the job's id
-      const result = service.findOne(job.id);
+      const result = service.getJob(job.id);
 
       // Assert: verify the result matches the expected job
       expect(result).toEqual(job);
@@ -104,7 +106,7 @@ describe('JobService', () => {
 
     it('should return null for non-existent id', () => {
       // Act: call the findOne method with a non-existent id
-      const result = service.findOne('non-existent-id');
+      const result = service.getJob('non-existent-id');
 
       // Assert: verify the result is null
       expect(result).toBeNull();
