@@ -13,11 +13,11 @@ This file serves as a task list for the project. Check off tasks as you complete
 - [X] **Add Unit Tests to the Job Logic**  
   Write and run tests to ensure the job logic functions as expected.
 
-- [ ] **Create a Skill Struct**  
+- [x] **Create a Skill Struct**  
   Design and implement a skill struct to manage skills associated with jobs.  
   - Skills should be fetched from the database.
 
-- [ ] **Search Job Posting by Skills**  
+- [x] **Search Job Posting by Skills**  
   Implement functionality to search for job postings based on associated skills.
 
 - [ ] **Add a User Module (with all the CRUD)**  
