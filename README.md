@@ -10,7 +10,7 @@ This file serves as a task list for the project. Check off tasks as you complete
 - [x] **First Job Logic**  
   Develop and integrate the primary job logic functionality.
 
-- [ ] **Add Unit Tests to the Job Logic**  
+- [X] **Add Unit Tests to the Job Logic**  
   Write and run tests to ensure the job logic functions as expected.
 
 - [ ] **Create a Skill Struct**  
