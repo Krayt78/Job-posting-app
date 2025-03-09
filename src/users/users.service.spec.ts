@@ -5,6 +5,19 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 
+// Mocks for bcrypt to speed up tests
+beforeAll(() => {
+  jest.spyOn(bcrypt, 'hash').mockImplementation(async (password: string, saltRounds: number) => {
+    // Return a fake hash quickly
+    return Promise.resolve(`hashed_${password}`);
+  });
+
+  jest.spyOn(bcrypt, 'compare').mockImplementation(async (password: string, hash: string) => {
+    // Our fake compare: the hash should be "hashed_" concatenated with the password.
+    return Promise.resolve(hash === `hashed_${password}`);
+  });
+});
+
 // Default payload for creating a user.
 const defaultUserPayload: CreateUserDto = {
   email: 'test@example.com',
@@ -26,7 +39,11 @@ const createLoginFixture = (overrides: Partial<LoginUserDto> = {}): LoginUserDto
 });
 
 // Assertion helper to validate the structure and hashed password of a user.
-const assertValidUser = (user: any, expected: { email: string; name: string }, originalPassword: string) => {
+const assertValidUser = (
+  user: any,
+  expected: { email: string; name: string },
+  originalPassword: string,
+) => {
   expect(user).toBeDefined();
   expect(user.id).toBeDefined();
   expect(user.email).toEqual(expected.email);
@@ -34,7 +51,7 @@ const assertValidUser = (user: any, expected: { email: string; name: string }, o
   expect(user.createdAt).toBeInstanceOf(Date);
   expect(user.updatedAt).toBeInstanceOf(Date);
   expect(user.password).toBeDefined();
-  // Ensure that the stored password is not plain text.
+  // Check that the stored password is not the plain text.
   expect(user.password).not.toEqual(originalPassword);
 };
 
@@ -57,7 +74,7 @@ describe('UsersService', () => {
 
       // Validate user object structure.
       assertValidUser(user, { email: payload.email, name: payload.name }, payload.password);
-      // Verify that the hash matches the original password.
+      // Verify that the fake hash matches our fake implementation
       const isMatch = await bcrypt.compare(payload.password, user.password);
       expect(isMatch).toBe(true);
     });

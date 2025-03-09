@@ -1,6 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import * as bcrypt from 'bcrypt';
+
+// Mock bcrypt methods to speed up tests
+beforeAll(() => {
+  jest.spyOn(bcrypt, 'hash').mockImplementation(async (password: string, saltRounds: number) => {
+    return Promise.resolve(`hashed_${password}`);
+  });
+  jest.spyOn(bcrypt, 'compare').mockImplementation(async (password: string, hash: string) => {
+    return Promise.resolve(hash === `hashed_${password}`);
+  });
+});
 
 // A default user payload that can be reused and overridden if needed
 const defaultUserPayload = {
