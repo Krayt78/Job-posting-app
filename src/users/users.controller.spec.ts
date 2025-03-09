@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from './model/user.model';
+import { UserResponseDto } from './dto/user-response.dto';
 
 // Mock bcrypt methods to speed up tests
 beforeAll(() => {
@@ -28,14 +29,11 @@ const createUserFixture = (overrides: Partial<typeof defaultUserPayload> = {}) =
 });
 
 // Assertion helper: verifies that the user object has the expected properties
-const assertValidUser = (user: User, expected: { email: string; name: string }) => {
+const assertValidUserResponse = (user: UserResponseDto, expected: { email: string; name: string }) => {
   expect(user).toBeDefined();
   expect(user.id).toBeDefined();
   expect(user.email).toBe(expected.email);
   expect(user.name).toBe(expected.name);
-  expect(user.createdAt).toBeDefined();
-  expect(user.updatedAt).toBeDefined();
-  expect(user.password).toBeUndefined();
 };
 
 describe('UsersController', () => {
@@ -58,7 +56,7 @@ describe('UsersController', () => {
     const payload = createUserFixture();
     const newUser = await controller.register(payload);
 
-    assertValidUser(newUser, { email: payload.email, name: payload.name });
+    assertValidUserResponse(newUser, { email: payload.email, name: payload.name });
   });
 
   it('should login a user', async () => {
@@ -69,12 +67,12 @@ describe('UsersController', () => {
       password: payload.password,
     });
 
-    const loggedInUser = loginResult.user;
+    const loggedInUser = loginResult.userResponse;
     const token = loginResult.token;
     
     expect(token).toBeDefined();
     expect(token.length).toBeGreaterThan(0);
-    assertValidUser(loggedInUser, { email: payload.email, name: payload.name });
+    assertValidUserResponse(loggedInUser, { email: payload.email, name: payload.name });
     expect(loggedInUser.id).toBe(registeredUser.id);
   });
 });
