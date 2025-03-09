@@ -5,10 +5,13 @@ import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './model/user.model';
+import * as jwt from 'jsonwebtoken';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
   private users: User[] = [];
+  private readonly jwtSecret = 'your_jwt_secret'; // Replace with env variable in production
 
   // Helper method to hash a password
   private async hashPassword(password: string): Promise<string> {
@@ -16,11 +19,17 @@ export class UsersService {
     return bcrypt.hash(password, saltRounds);
   }
 
+  // Helper method to remove the password from the user object
+  private toResponse(user: User): UserResponseDto {
+    const { password, ...rest } = user;
+    return rest;
+  }
+
   // Register a new user: hash the password before saving the user.
-  async register(createUserDto: CreateUserDto): Promise<User> {
+  async register(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const existingUser = this.users.find(u => u.email === createUserDto.email);
     if (existingUser) {
-        throw new UnauthorizedException('User with this email already exists');
+      throw new UnauthorizedException('User with this email already exists');
     }
 
     const hashedPassword = await this.hashPassword(createUserDto.password);
@@ -33,16 +42,21 @@ export class UsersService {
       updatedAt: new Date(),
     };
 
-    //Todo: add the whole "send email to verify email" logic here
+    // Todo: add the "send email to verify email" logic here
 
     this.users.push(newUser);
-    return newUser;
+    return this.toResponse(newUser);
+  }
+
+  // Helper method to generate an authentication token for a user
+  private generateAuthToken(user: User): string {
+    const payload = { id: user.id, email: user.email };
+    return jwt.sign(payload, this.jwtSecret, { expiresIn: '1h' });
   }
 
   // Login method: compare provided password with the stored hashed password.
-  // this method could be more secure by making sure someone can't brute force
-  // could implement some type of waiting to offuscate the time it takes to verify
-  async login(loginUserDto: LoginUserDto): Promise<User> {
+  // Returns both the authenticated user and an auth token.
+  async login(loginUserDto: LoginUserDto): Promise<{ userResponse: UserResponseDto; token: string }> {
     const user = this.users.find(u => u.email === loginUserDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -53,7 +67,9 @@ export class UsersService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return user;
+    const token = this.generateAuthToken(user);
+    const userResponse = this.toResponse(user);
+    return { userResponse, token };
   }
 
   // Additional CRUD methods could go here (find, update, delete, etc.)

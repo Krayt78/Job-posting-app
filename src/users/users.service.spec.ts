@@ -74,7 +74,7 @@ describe('UsersService', () => {
 
       // Validate user object structure.
       assertValidUser(user, { email: payload.email, name: payload.name }, payload.password);
-      // Verify that the fake hash matches our fake implementation
+      // Verify that the fake hash matches our fake implementation.
       const isMatch = await bcrypt.compare(payload.password, user.password);
       expect(isMatch).toBe(true);
     });
@@ -87,16 +87,19 @@ describe('UsersService', () => {
   });
 
   describe('login', () => {
-    it('should login a registered user with correct credentials', async () => {
+    it('should login a registered user with correct credentials and return a token', async () => {
       const registerPayload = createUserFixture({ email: 'login@example.com', name: 'Login User' });
       const registeredUser = await service.register(registerPayload);
 
       const loginPayload = createLoginFixture({ email: registerPayload.email, password: registerPayload.password });
-      const loggedInUser = await service.login(loginPayload);
+      const { userResponse: loggedInUser, token } = await service.login(loginPayload);
 
       // Validate the logged in user's structure and ensure the IDs match.
       assertValidUser(loggedInUser, { email: registerPayload.email, name: registerPayload.name }, registerPayload.password);
       expect(loggedInUser.id).toEqual(registeredUser.id);
+      // Assert that a token is returned and is a string.
+      expect(token).toBeDefined();
+      expect(typeof token).toBe('string');
     });
 
     it('should throw UnauthorizedException if email is not found', async () => {

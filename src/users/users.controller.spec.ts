@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import * as bcrypt from 'bcrypt';
+import { User } from './model/user.model';
 
 // Mock bcrypt methods to speed up tests
 beforeAll(() => {
@@ -27,14 +28,14 @@ const createUserFixture = (overrides: Partial<typeof defaultUserPayload> = {}) =
 });
 
 // Assertion helper: verifies that the user object has the expected properties
-const assertValidUser = (user: any, expected: { email: string; name: string }) => {
+const assertValidUser = (user: User, expected: { email: string; name: string }) => {
   expect(user).toBeDefined();
   expect(user.id).toBeDefined();
   expect(user.email).toBe(expected.email);
   expect(user.name).toBe(expected.name);
   expect(user.createdAt).toBeDefined();
   expect(user.updatedAt).toBeDefined();
-  expect(user.password).toBeDefined();
+  expect(user.password).toBeUndefined();
 };
 
 describe('UsersController', () => {
@@ -63,11 +64,16 @@ describe('UsersController', () => {
   it('should login a user', async () => {
     const payload = createUserFixture();
     const registeredUser = await controller.register(payload);
-    const loggedInUser = await controller.login({
+    const loginResult = await controller.login({
       email: payload.email,
       password: payload.password,
     });
 
+    const loggedInUser = loginResult.user;
+    const token = loginResult.token;
+    
+    expect(token).toBeDefined();
+    expect(token.length).toBeGreaterThan(0);
     assertValidUser(loggedInUser, { email: payload.email, name: payload.name });
     expect(loggedInUser.id).toBe(registeredUser.id);
   });
